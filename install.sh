@@ -176,7 +176,7 @@ parse_args () {
         for config in $(ls dotconfig); do
           configcmp=$(echo $config | cut -d . -f1)
           if [[ " ${pkg^^} " =~ " ${configcmp^^} " ]]; then
-            CONFIG_LIST+=("./dotconfig/${config}")
+            CONFIG_LIST+=("${config}")
           fi
         done
       done
