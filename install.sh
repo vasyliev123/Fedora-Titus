@@ -213,10 +213,12 @@ main () {
 
   parse_args "$@" # sets  ARGS[@] to supplied arguments
 
+  echo "this may take a bit..."
   # Updating System
   # dnf update -y
   if [[ "${UPDATE}" == "y" ]]; then
-    sudo dnf update -y
+    debug "Updating system..."
+    sudo dnf update -y 2>&1>/dev/null
   fi
 
   # # Making .config and Moving dotfiles and Background to .config
@@ -226,21 +228,28 @@ main () {
   # mv ./bg.jpg ~/.config
 
   if [[ ${CONFIGS} ]]; then
+    debug "creating .config..."
     mkdir ~/.config
+    debug "copying configs..."
     for config in ${CONFIG_LIST[@]}; do
+            debug "    ${config}"
       cp -r ./dotconfig/${config} ~/.config
     done
   fi
 
   if [[ ${XCONFIGS} ]]; then
+    debug "copying X configs..."
     for config in ${XCONFIG_LIST[@]}; do
+        debug "    ${config}"
       cp -r ./${config} ~
     done
   fi
 
   if [[ ${BG} ]]; then
+    debug "copying background to .config..."
     cp ./bg.jpg ~/.config
-  
+  fi
+
   # # Installing Essential Programs 
   # dnf install sddm bspwm sxhkd kitty rofi polybar picom thunar nitrogen lxpolkit
   # # Installing Other less important Programs
@@ -249,7 +258,8 @@ main () {
   # dnf install ./rpm-packages/ocs-url-3.1.0-1.fc20.x86_64.rpm
 
   if [[ ${INSTALL_LIST} ]]; then
-    sudo dnf install ${INSTALL_LIST[@]}
+    debug "installing packages..."
+    sudo dnf -y install ${INSTALL_LIST[@]} 2>&1>/dev/null
   fi
 
   # # Installing fonts
@@ -264,18 +274,21 @@ main () {
   # rm ./FiraCode.zip ./Meslo.zip
 
   if [[ ${FONTS} ]]; then
-      wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip
-      wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip
-      sudo unzip *.zip -d /usr/share/fonts
-      rm -rf *.zip
-      sudo fc-cache -f
+    debug "installing zip fonts..."
+    wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip 2>&1>/dev/null
+    wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip 2>&1>/dev/null
+    sudo unzip *.zip -d /usr/share/fonts 2>&1>/dev/null
+    rm -rf *.zip
+    sudo fc-cache -f
   fi
 
   # # Enabling Services and Graphical User Interface
 
   if [[ ${SERVICES} ]]; then
-    systemctl enable sddm
-    systemctl set-default graphical.target
+    debug "enabling sddm..."
+    sddm=$(systemctl enable sddm)
+    debug "setting graphical target..."
+    graphical=$(systemctl set-default graphical.target)
   fi
 
 }
