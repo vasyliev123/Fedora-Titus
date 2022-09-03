@@ -3,6 +3,7 @@
 readonly VERSION="1.0.0"
 readonly ERR_UNK_OPT=64
 readonly ERR_TOOMANY_OPT=65
+readonly ERR_NOTENUF_OPT=66
 readonly ANSI_RED="\033[1;31m"
 readonly ANSI_CLEAR="\033[0m"
 readonly ANSI_YELLOW="\033[1;93m"
@@ -17,11 +18,13 @@ unset UPDATE
 unset SERVICES
 unset XCONFIGS
 unset XCONFIG_LIST
+unset NUM_OPTS
 
 ARGS=()
 INSTALL_LIST=()
 CONFIG_LIST=()
 XCONFIG_LIST=()
+NUM_OPTS=0
 
 finish () {
   local rc="$1"
@@ -99,11 +102,11 @@ parse_args () {
         if getopts ${optstring} arg; then
             case ${arg} in
                 h) usage; finish 0 "" ;;
-                v) DEBUG=yes ;;
+                v) DEBUG=yes; ((NUM_OPTS--)) ;;
                 V) version; finish 0 "" ;;
                 a) INSTALL_LIST+=("lxappearance");;
                 b) BG=y;;
-                c) CONFIGS=y;;
+                c) CONFIGS=y; ((NUM_OPTS--)) ;;
                 f) FONTS=y;;
                 g) INSTALL_LIST+=("gimp");;
                 k) INSTALL_LIST+=("kitty");;
@@ -124,6 +127,7 @@ parse_args () {
                 X) XCONFIGS=y;;
                 ?) finish "${ERR_UNK_OPT}" "unkown option: -${OPTARG}";;
             esac
+            ((NUM_OPTS++))
         else
             ARGS+=("${!OPTIND}")
             ((OPTIND++))
@@ -134,6 +138,10 @@ parse_args () {
       finish "${ERR_TOOMANY_OPT}" "too many options"
     fi
 
+    if [[ ! ${ARGS[0]} ]]; then
+      ARGS[0]="all"
+    fi
+    
     if [[ ${ARGS[0]} == "all" ]]; then
       debug "all selected, overriding switches"
       INSTALL_LIST=("sxhkd" "bspwm" "thunar" "sddm" "rofi" "picom" \
@@ -146,9 +154,7 @@ parse_args () {
       FONTS=y
       BG=y
       SERVICES=y
-    fi
-
-    if [[ ${ARGS[0]} == "essential" ]]; then
+    elif [[ ${ARGS[0]} == "essential" ]]; then
       debug "essential selected, overriding switches"
       INSTALL_LIST=("sxhkd" "bspwm" "thunar" "sddm" "rofi" "picom" \
         "polybar" "./rpm-packages/ocs-url-3.1.0-1.fc20.x86_64.rpm" \
@@ -159,9 +165,7 @@ parse_args () {
       FONTS=y
       BG=y
       SERVICES=y
-    fi
-
-    if [[ ${ARGS[0]} == "optional" ]]; then
+    elif [[ ${ARGS[0]} == "optional" ]]; then
       debug "optional selected, overriding switches (no svc start)"
       INSTALL_LIST=("vim" "mangohud" "lxappearance" "gimp")
       XCONFIGS=y
@@ -218,7 +222,7 @@ main () {
   # dnf update -y
   if [[ "${UPDATE}" == "y" ]]; then
     debug "Updating system..."
-    sudo dnf update -y 2>&1>/dev/null
+    debug "$(sudo dnf update -y 2>&1)"
   fi
 
   # # Making .config and Moving dotfiles and Background to .config
@@ -228,8 +232,10 @@ main () {
   # mv ./bg.jpg ~/.config
 
   if [[ ${CONFIGS} ]]; then
-    debug "creating .config..."
-    mkdir ~/.config
+    if [[ ! -d ~/.config ]]; then
+      debug "creating .config..."
+      mkdir ~/.config
+    fi
     debug "copying configs..."
     for config in ${CONFIG_LIST[@]}; do
             debug "    ${config}"
@@ -259,7 +265,9 @@ main () {
 
   if [[ ${INSTALL_LIST} ]]; then
     debug "installing packages..."
-    sudo dnf -y install ${INSTALL_LIST[@]} 2>&1>/dev/null
+    if [[ ! $(which wget) ]]; then INSTALL_LIST+=("wget"); fi
+    if [[ ! $(which unzip) ]]; then INSTALL_LIST+=("unzip"); fi
+    debug "$(sudo dnf -y install ${INSTALL_LIST[@]} 2>&1)"
   fi
 
   # # Installing fonts
@@ -275,10 +283,13 @@ main () {
 
   if [[ ${FONTS} ]]; then
     debug "installing zip fonts..."
-    wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip 2>&1>/dev/null
-    wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip 2>&1>/dev/null
-    sudo unzip *.zip -d /usr/share/fonts 2>&1>/dev/null
-    rm -rf *.zip
+    if [[ ! -f Meslo.zip ]]; then
+      debug "$(wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip 2>&1)"
+    fi
+    if [[ ! -f FiraCode.zip ]]; then
+      debug "$(wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip 2>&1)"
+    fi
+    #rm -rf *.zip
     sudo fc-cache -f
   fi
 
@@ -286,14 +297,11 @@ main () {
 
   if [[ ${SERVICES} ]]; then
     debug "enabling sddm..."
-    sddm=$(systemctl enable sddm)
+    debug "$(sudo systemctl enable sddm)"
     debug "setting graphical target..."
-    graphical=$(systemctl set-default graphical.target)
+    debug "$(sudo systemctl set-default graphical.target)"
   fi
 
 }
-
-if [[ ! $(which wget) ]]; then INSTALL_LIST+=("wget"); fi
-if [[ ! $(which unzip) ]]; then INSTALL_LIST+=("unzip"); fi
 
 if [[ $(basename $0) == "install.sh" ]]; then main "$@"; fi
