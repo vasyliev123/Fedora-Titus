@@ -14,11 +14,14 @@ unset DEBUG
 unset FONTS
 unset INSTALL_LIST
 unset UPDATE
+unset SERVICES
 unset XCONFIGS
+unset XCONFIG_LIST
 
 ARGS=()
 INSTALL_LIST=()
 CONFIG_LIST=()
+XCONFIG_LIST=()
 
 finish () {
   local rc="$1"
@@ -90,7 +93,7 @@ version () {
 }
 
 parse_args () {
-    optstring=":hvVabcfklmMnopPrstuwxX"
+    optstring=":hvVabcfgklmMnopPrsStuwxX"
 
     while [[ $OPTIND -le "$#" ]]; do
         if getopts ${optstring} arg; then
@@ -113,6 +116,7 @@ parse_args () {
                 P) INSTALL_LIST+=("picom");;
                 r) INSTALL_LIST+=("rofi");;
                 s) INSTALL_LIST+=("sddm");;
+                S) SERVICES=y;;
                 t) INSTALL_LIST+=("thunar");;
                 u) UPDATE=y;;
                 w) INSTALL_LIST+=("bspwm");;
@@ -141,6 +145,7 @@ parse_args () {
       CONFIGS=y
       FONTS=y
       BG=y
+      SERVICES=y
     fi
 
     if [[ ${ARGS[0]} == "essential" ]]; then
@@ -153,10 +158,11 @@ parse_args () {
       CONFIGS=y
       FONTS=y
       BG=y
+      SERVICES=y
     fi
 
     if [[ ${ARGS[0]} == "optional" ]]; then
-      debug "optional selected, overriding switches"
+      debug "optional selected, overriding switches (no svc start)"
       INSTALL_LIST=("vim" "mangohud" "lxappearance" "gimp")
       XCONFIGS=y
       UPDATE=y
@@ -170,9 +176,21 @@ parse_args () {
         for config in $(ls dotconfig); do
           configcmp=$(echo $config | cut -d . -f1)
           if [[ " ${pkg^^} " =~ " ${configcmp^^} " ]]; then
-            CONFIG_LIST+=("${config}")
+            CONFIG_LIST+=("./dotconfig/${config}")
           fi
         done
+      done
+    fi
+
+    if [[ "${XCONFIGS}" == "y" ]]; then
+      for file in $(ls .X* && ls .x*); do
+        XCONFIG_LIST+=("./${file}")
+      done
+    fi
+
+    if [[ "${FONTS}" == "y" ]]; then
+      for font in "fontawesome-fonts fontawesome-fonts-web"; do
+        INSTALL_LIST+=("$font")
       done
     fi
 
@@ -185,6 +203,9 @@ parse_args () {
       for config in ${CONFIG_LIST[@]}; do
         debug "    ${config}"
       done
+      for config in ${XCONFIG_LIST[@]}; do
+        debug "    ${config}"
+      done
     fi
 }
 
@@ -194,6 +215,9 @@ main () {
 
   # Updating System
   # dnf update -y
+  if [[ "${UPDATE}" == "y" ]]; then
+    sudo dnf update -y
+  fi
 
   # # Making .config and Moving dotfiles and Background to .config
   # mkdir ~/.config
@@ -201,12 +225,32 @@ main () {
   # mv ./dotconfig/* ~/.config
   # mv ./bg.jpg ~/.config
 
+  if [[ ${CONFIGS} ]]; then
+    mkdir ~/.config
+    for config in ${CONFIG_LIST[@]}; do
+      cp -r ./dotconfig/${config} ~/.config
+    done
+  fi
+
+  if [[ ${XCONFIGS} ]]; then
+    for config in ${XCONFIG_LIST[@]}; do
+      cp -r ./${config} ~
+    done
+  fi
+
+  if [[ ${BG} ]]; then
+    cp ./bg.jpg ~/.config
+  
   # # Installing Essential Programs 
   # dnf install sddm bspwm sxhkd kitty rofi polybar picom thunar nitrogen lxpolkit
   # # Installing Other less important Programs
   # dnf install mangohud gimp vim lxappearance
   # # Installing Custom ocs-url package
   # dnf install ./rpm-packages/ocs-url-3.1.0-1.fc20.x86_64.rpm
+
+  if [[ ${INSTALL_LIST} ]]; then
+    sudo dnf install ${INSTALL_LIST[@]}
+  fi
 
   # # Installing fonts
   # dnf install fontawesome-fonts fontawesome-fonts-web
@@ -219,12 +263,24 @@ main () {
   # # Removing zip Files
   # rm ./FiraCode.zip ./Meslo.zip
 
-  # # Enabling Services and Graphical User Interface
-  # systemctl enable sddm
-  # systemctl set-default graphical.target
+  if [[ ${FONTS} ]]; then
+      wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip
+      wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip
+      sudo unzip *.zip -d /usr/share/fonts
+      rm -rf *.zip
+      sudo fc-cache -f
+  fi
 
+  # # Enabling Services and Graphical User Interface
+
+  if [[ ${SERVICES} ]]; then
+    systemctl enable sddm
+    systemctl set-default graphical.target
+  fi
 
 }
 
+if [[ ! $(which wget) ]]; then INSTALL_LIST+=("wget"); fi
+if [[ ! $(which unzip) ]]; then INSTALL_LIST+=("unzip"); fi
 
 if [[ $(basename $0) == "install.sh" ]]; then main "$@"; fi
