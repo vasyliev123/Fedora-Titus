@@ -146,6 +146,7 @@ parse_args () {
     fi
 
     if [[ ! ${ARGS[0]} && ${NUM_OPTS} -eq 0 ]]; then
+      debug "no actionable options, setting to all"
       ARGS[0]="all"
     fi
     
