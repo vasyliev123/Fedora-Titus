@@ -6,18 +6,18 @@ A default configuration for a minimal desktop after fresh server installation, b
 
 install essential components for desktop
 
-# Usage:
+## Usage:
 
     ./install.sh [OPTION] 
     ./install.sh [all|essential|optional] 
 
-# Options:
+## Options:
 
 - -h - display this help message and exit
 - -v - turn on debug mode (verbose) 
 - -V - display version 
 
-# Meta Options (overrides Switches)
+## Meta Options (overrides Switches)
 
 - all - install all components, with configs 
 - essential - install essential components (sddm, bspwm, sxhkd, kitty, rofi, 
@@ -26,7 +26,7 @@ install essential components for desktop
 - optional - install optional components (mangohud, gimp, vim, lxappearance) 
             with configs 
 
-# Switches (more granular control) 
+## Switches (more granular control) 
 
 - -a  -  install lxappearance 
 - -b  -  install background (in bg.jpg) 
@@ -49,7 +49,7 @@ install essential components for desktop
 - -x  -  install sxhkd hotkey manager 
 - -X  -  install Xorg option files
 
-# Examples:
+## Examples:
 
     ./install all          (installs all components) 
     ./install essential    (installs all essential components) 
