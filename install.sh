@@ -295,10 +295,10 @@ main () {
   if [[ ${FONTS} ]]; then
     debug "downloading nerd fonts..."
     if [[ ! -f Meslo.zip ]]; then
-      debug "$(wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip 2>&1)"
+      debug "$(wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip 2>&1)"
     fi
     if [[ ! -f FiraCode.zip ]]; then
-      debug "$(wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip 2>&1)"
+      debug "$(wget -q https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip 2>&1)"
     fi
     debug "unzipping nerd fonts..."
     if [[ ! -d ~/.fonts ]]; then
