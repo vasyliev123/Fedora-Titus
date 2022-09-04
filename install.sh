@@ -3,6 +3,7 @@
 # known bugs so far:
 # - there may be unexpected behavior if weird args are given?
 # -- need to robust the user input checking a bit.
+# - polybar is bugged, fonts don't fix it.
 
 readonly VERSION="1.0.0"
 readonly ERR_UNK_OPT=64
