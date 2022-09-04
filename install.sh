@@ -272,8 +272,8 @@ main () {
 
   if [[ ${INSTALL_LIST} ]]; then
     debug "installing packages..."
-    if [[ ! $(which wget) ]]; then INSTALL_LIST+=("wget"); fi
-    if [[ ! $(which unzip) ]]; then INSTALL_LIST+=("unzip"); fi
+    if [[ ! $(which wget 2>&1>/dev/null) ]]; then INSTALL_LIST+=("wget"); fi
+    if [[ ! $(which unzip 2>&1>/dev/null) ]]; then INSTALL_LIST+=("unzip"); fi
     debug "$(sudo dnf -y install ${INSTALL_LIST[@]} 2>&1)"
   fi
 
