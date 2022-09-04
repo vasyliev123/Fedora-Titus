@@ -304,7 +304,8 @@ main () {
     if [[ ! -d ~/.fonts ]]; then
       mkdir -p ~/.fonts
     fi
-    debug "$(unzip FiraCode.zip Meslo.zip -d ~/.fonts 2>&1)"
+    debug "$(unzip FiraCode.zip -d ~/.fonts 2>&1)"
+    debug "$(unzip Meslo.zip -d ~/.fonts 2>&1)"
     #rm -rf *.zip
     debug "$(fc-cache -f 2>&1)"
   fi
