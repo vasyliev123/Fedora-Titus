@@ -289,7 +289,7 @@ main () {
   # rm ./FiraCode.zip ./Meslo.zip
 
   if [[ ${FONTS} ]]; then
-    debug "installing zip fonts..."
+    debug "installing nerd fonts..."
     if [[ ! -f Meslo.zip ]]; then
       debug "$(wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip 2>&1)"
     fi
