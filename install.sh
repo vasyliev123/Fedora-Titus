@@ -2,10 +2,11 @@
 
 # known bugs so far:
 # - there may be unexpected behavior if weird args are given?
-# -- need to robust the user input checking a bit.
+# -- need to robust the user input checking a bit. (fixed?)
 # - if only options are given, overides with 'all'
 # -- fixed
-# - polybar is bugged, fonts don't fix it.
+# - polybar is bugged, fonts don't fix it?
+# -- fixed? unzipped fonts a la video, seems to have worked.
 
 readonly VERSION="1.0.0"
 readonly ERR_UNK_OPT=64
@@ -292,15 +293,20 @@ main () {
   # rm ./FiraCode.zip ./Meslo.zip
 
   if [[ ${FONTS} ]]; then
-    debug "installing nerd fonts..."
+    debug "downloading nerd fonts..."
     if [[ ! -f Meslo.zip ]]; then
       debug "$(wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip 2>&1)"
     fi
     if [[ ! -f FiraCode.zip ]]; then
       debug "$(wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip 2>&1)"
     fi
+    debug "unzipping nerd fonts..."
+    if [[ ! -d ~/.fonts ]]; then
+      mkdir -p ~/.fonts
+    fi
+    debug "$(unzip FiraCode.zip Meslo.zip -d ~/.fonts 2>&1)"
     #rm -rf *.zip
-    sudo fc-cache -f
+    debug "$(fc-cache -f 2>&1)"
   fi
 
   # # Enabling Services and Graphical User Interface
