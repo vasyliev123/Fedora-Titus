@@ -181,6 +181,8 @@ parse_args () {
       CONFIGS=y
       FONTS=y
       BG=y
+    elif [[ ${ARGS[0]} != "" || ${NUM_OPTS} -lt 1 ]]; then
+      finish ${ERR_NOTENUF_OPT} "no valid options given"
     fi
 
     if [[ "${CONFIGS}" == "y" ]]; then
