@@ -51,6 +51,6 @@ install essential components for desktop
 
 # Examples:
 
-    $(basename $0) all          (installs all components) 
-    $(basename $0) essential    (installs all essential components) 
-    $(basename $0) -wc          (installs bspwm and copies configs) 
+    ./install all          (installs all components) 
+    ./install essential    (installs all essential components) 
+    ./install -wc          (installs bspwm and copies configs) 
