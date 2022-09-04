@@ -68,8 +68,8 @@ Options: \n\
   -a    install lxappearance \n\
   -b    install background (in bg.jpg) \n\
   -c    copy configs of selected components into ~/.config \n\
-  -f    install fonts
-  -g    install GIMP
+  -f    install fonts \n\
+  -g    install GIMP \n\
   -k    install kitty terminal emulator \n\
   -l    install lxpolkit \n\
   -m    install mangohud \n\
@@ -84,7 +84,7 @@ Options: \n\
   -u    run system update \n\
   -w    install bspwm window manager \n\
   -x    install sxhkd hotkey manager \n\
-  -X    install Xorg option files
+  -X    install Xorg option files \n\
 \n\
 Examples: $(basename $0) all          (installs all components) \n\
           $(basename $0) essential    (installs all essential components) \n\
