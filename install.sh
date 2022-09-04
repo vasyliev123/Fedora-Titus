@@ -3,6 +3,8 @@
 # known bugs so far:
 # - there may be unexpected behavior if weird args are given?
 # -- need to robust the user input checking a bit.
+# - if only options are given, overides with 'all'
+# -- fixed
 # - polybar is bugged, fonts don't fix it.
 
 readonly VERSION="1.0.0"
@@ -143,7 +145,7 @@ parse_args () {
       finish "${ERR_TOOMANY_OPT}" "too many options"
     fi
 
-    if [[ ! ${ARGS[0]} ]]; then
+    if [[ ! ${ARGS[0]} && ${NUM_OPTS} -eq 0 ]]; then
       ARGS[0]="all"
     fi
     
