@@ -295,17 +295,17 @@ format-background = ${colors.shade16}
 format-overline = ${colors.background}
 format-underline = ${colors.background}
 
-[module/vpn]
-type = custom/ipc
-initial = 2
-format-foreground = ${colors.shade5}
-format-background = ${colors.shade16}
-format-overline = ${colors.background}
+;[module/vpn]
+;type = custom/ipc
+;initial = 2
+;format-foreground = ${colors.shade5}
+;format-background = ${colors.shade16}
+;format-overline = ${colors.background}
 
-format-underline = ${colors.background}
+;format-underline = ${colors.background}
 
-hook-0 = echo "%{A1:sudo pkill openconnect && polybar-msg hook vpn 2:}%{F#a3be8c} %{F-}%{A}" &
-hook-1 = echo "%{A1:pass sshthanos | sudo openconnect vpn.som.umaryland.edu -b -q --user=cullen.ross --authgroup SOM-Multifactor --passwd-on-stdin --servercert pin-sha256\:zWuWUmGaQEWraG+Xvv6uF58rrupSRmqCzeNioSDEaaI= && polybar-msg hook vpn 1:}%{F#3b4252} %{F-}%{A}" &
+;hook-0 = echo "%{A1:sudo pkill openconnect && polybar-msg hook vpn 2:}%{F#a3be8c} %{F-}%{A}" &
+;hook-1 = echo "%{A1:pass sshthanos | sudo openconnect vpn.som.umaryland.edu -b -q --user=cullen.ross --authgroup SOM-Multifactor --passwd-on-stdin --servercert pin-sha256\:zWuWUmGaQEWraG+Xvv6uF58rrupSRmqCzeNioSDEaaI= && polybar-msg hook vpn 1:}%{F#3b4252} %{F-}%{A}" &
 
 [module/dunst]
 type = custom/ipc
